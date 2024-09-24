@@ -1,9 +1,5 @@
-import {
-    SlashCommandBuilder,
-    ChatInputCommandInteraction,
-    CacheType,
-  } from "discord.js";
-  import { Command } from "..";
+import { SlashCommandBuilder, ChatInputCommandInteraction, CacheType } from "discord.js";
+import { Command } from "..";
   
   export class HelloCommand implements Command {
     name = "hey";

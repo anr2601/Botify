@@ -14,6 +14,7 @@ class BotifyApplication {
         this.client = new discord_js_1.Client({
             intents: [
                 discord_js_1.GatewayIntentBits.Guilds,
+                discord_js_1.GatewayIntentBits.GuildMembers,
                 discord_js_1.GatewayIntentBits.GuildMessages,
                 discord_js_1.GatewayIntentBits.MessageContent,
             ],
@@ -51,6 +52,29 @@ class BotifyApplication {
         });
         this.client.on(discord_js_1.Events.ClientReady, () => {
             console.log("Botify client logged in");
+            setInterval(() => {
+                var _a;
+                let status = [
+                    {
+                        name: 'Minecraft',
+                        type: discord_js_1.ActivityType.Playing
+                    },
+                    {
+                        name: 'Youtube',
+                        type: discord_js_1.ActivityType.Watching
+                    },
+                    {
+                        name: 'React Chatbotify Documentation',
+                        type: discord_js_1.ActivityType.Watching
+                    },
+                    {
+                        name: 'Spotify',
+                        type: discord_js_1.ActivityType.Listening
+                    }
+                ];
+                let random = Math.floor(Math.random() * status.length);
+                (_a = this.client.user) === null || _a === void 0 ? void 0 : _a.setActivity(status[random]);
+            }, 10000);
         });
         this.client.on(discord_js_1.Events.Error, (err) => {
             console.error("Client error", err);

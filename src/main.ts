@@ -1,14 +1,9 @@
-import {
-    ChatInputCommandInteraction,
-    Client,
-    Events,
-    GatewayIntentBits,
-    REST as DiscordRestClient,
-    Routes,
-  } from "discord.js";
+import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as DiscordRestClient, Routes, ActivityType } from "discord.js";
   import dotenv from "dotenv";
+  const mongoose = require('mongoose');
   import { InteractionHandler } from "./handler";
   dotenv.config();
+
   
   const DISCORD_ACCESS_TOKEN = process.env.DISCORD_TOKEN || "";
   const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || "";
@@ -22,17 +17,33 @@ import {
       this.client = new Client({
         intents: [
           GatewayIntentBits.Guilds,
+          GatewayIntentBits.GuildMembers,
           GatewayIntentBits.GuildMessages,
           GatewayIntentBits.MessageContent,
         ],
         shards: "auto",
         failIfNotExists: false,
       });
+
+      (async() => {
+        
+        try{
+          await mongoose.connect(process.env.MONGO_URL);
+          console.log("Connected to MongoDB");
+        }
+        catch(error){
+          console.log(`Error: ${error}`);
+        }
+        
+      })();
+
       this.discordRestClient = new DiscordRestClient().setToken(
         DISCORD_ACCESS_TOKEN
       );
       this.interactionHandler = new InteractionHandler();
     }
+
+    
   
     start() {
       this.client
@@ -69,6 +80,31 @@ import {
   
       this.client.on(Events.ClientReady, () => {
         console.log("Botify client logged in");
+
+        setInterval(() => {
+
+          let status = [
+            {
+              name:'Minecraft',
+              type:ActivityType.Playing
+            },
+            {
+              name:'Youtube',
+              type:ActivityType.Watching
+            },
+            {
+              name:'React Chatbotify Documentation',
+              type:ActivityType.Watching
+            },
+            {
+              name:'Spotify',
+              type:ActivityType.Listening
+            }
+          ]
+
+          let random = Math.floor(Math.random() * status.length);
+          this.client.user?.setActivity(status[random]);
+        }, 10000);
       });
   
       this.client.on(Events.Error, (err: Error) => {

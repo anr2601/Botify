@@ -12,11 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InteractionHandler = void 0;
 const ping_1 = require("../command/ping");
 const hello_1 = require("../command/hello");
+const ban_1 = require("../command/ban");
+const mute_1 = require("../command/mute");
 class InteractionHandler {
     constructor() {
         this.commands = [
             new ping_1.PingCommand(),
-            new hello_1.HelloCommand()
+            new hello_1.HelloCommand(),
+            new ban_1.BanCommand(),
+            new mute_1.MuteCommand()
         ];
     }
     getSlashCommands() {

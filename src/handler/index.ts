@@ -1,7 +1,10 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import { Command } from "../command";
 import { PingCommand } from "../command/ping";
-import {HelloCommand} from "../command/hello"
+import {HelloCommand} from "../command/hello";
+import { BanCommand } from "../command/moderation/ban";
+import { MuteCommand } from "../command/moderation/mute";
+import { TimeoutCommand } from '../command/moderation/timeout';
 
 export class InteractionHandler {
   private commands: Command[];
@@ -9,11 +12,14 @@ export class InteractionHandler {
     constructor() {
       this.commands = [
         new PingCommand(),
-        new HelloCommand()
+        new HelloCommand(),
+        new BanCommand(),
+        new MuteCommand(),
+        new TimeoutCommand()
       ];
     }
   
-
+    
   getSlashCommands() {
     return this.commands.map((command: Command) =>
       command.slashCommandConfig.toJSON()
