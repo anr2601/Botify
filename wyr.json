@@ -1,0 +1,28 @@
+{
+    "questions":[
+        {
+            "option1":"Always be 10 minutes late",
+            "option2":"Always be 20 minutes early",
+            "button1":"Choose Late",
+            "button2":"Choose Early"
+        },
+        {
+            "option1":"Always have a full gas tank on your vehicle",
+            "option2":"Always have a full phone battery",
+            "button1":"Choose Full Battery",
+            "button2":"Choose Gas Tank"
+        },
+        {
+            "option1":"Get a paper cut every time you turn a page",
+            "option2":"Bite your tongue every time you eat",
+            "button1":"Choose Paper Cut",
+            "button2":"Choose Bite Tongue"
+        },
+        {
+            "option1":"Always be hungry",
+            "option2":"Always be thirsty",
+            "button1":"Choose Hunger",
+            "button2":"Choose Thirst"
+        }
+    ]
+}

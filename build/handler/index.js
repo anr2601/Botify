@@ -12,15 +12,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InteractionHandler = void 0;
 const ping_1 = require("../command/ping");
 const hello_1 = require("../command/hello");
-const ban_1 = require("../command/ban");
-const mute_1 = require("../command/mute");
+const ban_1 = require("../command/moderation/ban");
+const mute_1 = require("../command/moderation/mute");
+const timeout_1 = require("../command/moderation/timeout");
+const daily_1 = require("../command/economy/daily");
+const game_1 = require("../command/game");
 class InteractionHandler {
     constructor() {
         this.commands = [
             new ping_1.PingCommand(),
             new hello_1.HelloCommand(),
             new ban_1.BanCommand(),
-            new mute_1.MuteCommand()
+            new mute_1.MuteCommand(),
+            new timeout_1.TimeoutCommand(),
+            new daily_1.DailyCommand(),
+            new game_1.WYRCommand()
         ];
     }
     getSlashCommands() {
@@ -28,27 +34,60 @@ class InteractionHandler {
     }
     handleInteraction(interaction) {
         return __awaiter(this, void 0, void 0, function* () {
-            const commandName = interaction.commandName;
-            const matchedCommand = this.commands.find((command) => command.name === commandName);
-            if (!matchedCommand) {
-                return Promise.reject("Command not matched");
+            try {
+                if (interaction.isChatInputCommand()) {
+                    const commandName = interaction.commandName;
+                    const matchedCommand = this.commands.find((command) => command.name === commandName);
+                    if (!matchedCommand) {
+                        return Promise.reject("Command not matched");
+                    }
+                    matchedCommand
+                        .execute(interaction)
+                        .then(() => {
+                        console.log(`Sucesfully executed command [/${interaction.commandName}]`, {
+                            guild: interaction.guild
+                                ? { id: interaction.guildId, name: interaction.guild.name }
+                                : { id: "DM", name: "Direct Message" }, // Handle the case where interaction.guild is null
+                            user: { name: interaction.user.globalName },
+                        });
+                    });
+                }
+                else if (interaction.isButton()) {
+                    // Handle button interactions from the WYR game
+                    yield this.handleButtonInteraction(interaction);
+                }
             }
-            matchedCommand
-                .execute(interaction)
-                .then(() => {
-                console.log(`Sucesfully executed command [/${interaction.commandName}]`, {
+            catch (err) {
+                console.error(`Error executing command [/${interaction.isChatInputCommand() ? interaction.commandName : 'Button'}]: ${err}`, {
                     guild: interaction.guild
                         ? { id: interaction.guildId, name: interaction.guild.name }
-                        : { id: "DM", name: "Direct Message" }, // Handle the case where interaction.guild is null
-                    user: { name: interaction.user.globalName },
+                        : { id: "DM", name: "Direct Message" },
+                    user: { name: interaction.user.username },
                 });
-            })
-                .catch((err) => console.log(`Error executing command [/${interaction.commandName}]: ${err}`, {
+            }
+            ;
+        });
+    }
+    //WOULD YOU RATHER GAME HANDLER
+    handleButtonInteraction(interaction) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Handle different button interactions from the "Would You Rather" game
+            const customId = interaction.customId;
+            if (customId === 'oneButton') {
+                yield interaction.reply({ content: 'You chose the first option!', ephemeral: true });
+            }
+            else if (customId === 'twoButton') {
+                yield interaction.reply({ content: 'You chose the second option!', ephemeral: true });
+            }
+            else {
+                yield interaction.reply({ content: 'Unknown button interaction.', ephemeral: true });
+            }
+            console.log(`Button clicked: ${customId}`, {
                 guild: interaction.guild
                     ? { id: interaction.guildId, name: interaction.guild.name }
-                    : { id: "DM", name: "Direct Message" }, // Handle the case where interaction.guild is null
-                user: { name: interaction.user.globalName },
-            }));
+                    : { id: "DM", name: "Direct Message" },
+                user: { name: interaction.user.username },
+            });
         });
     }
 }

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as DiscordRestClient, Routes, ActivityType } from "discord.js";
+import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as DiscordRestClient, Routes, ActivityType, EmbedBuilder, TextChannel, DMChannel, NewsChannel } from "discord.js";
   import dotenv from "dotenv";
   const mongoose = require('mongoose');
   import { InteractionHandler } from "./handler";
@@ -28,13 +28,14 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
       (async() => {
         
         try{
+          mongoose.set('strictQuery', false);
           await mongoose.connect(process.env.MONGO_URL);
           console.log("Connected to MongoDB");
         }
         catch(error){
           console.log(`Error: ${error}`);
         }
-        
+
       })();
 
       this.discordRestClient = new DiscordRestClient().setToken(
@@ -72,10 +73,76 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
     }
   
     addClientEventHandlers() {
+
       this.client.on(Events.InteractionCreate, (interaction) => {
         this.interactionHandler.handleInteraction(
           interaction as ChatInputCommandInteraction
         );
+      });
+
+      this.client.on(Events.InteractionCreate, async interaction => {
+
+        if(!interaction.isButton()) return;
+        if(interaction.customId === 'oneButton'){
+          
+          const embed = new EmbedBuilder()
+            .setTitle(`${interaction.user.username} voted for 1`)
+            .setColor('Blue')
+            .setTimestamp()
+            .setFooter({text:`Voted for option 1`})
+
+
+          if (!interaction.channel) {
+            return await interaction.reply({
+              content: 'This interaction cannot be processed in DMs.',
+              ephemeral: true,
+            });
+          }
+
+          const channel = interaction.channel;
+
+          if (channel && (channel instanceof TextChannel || channel instanceof DMChannel || channel instanceof NewsChannel)) {
+            const reaction = await channel.send({embeds:[embed]});
+            reaction.react('👍')
+            reaction.react('👎')
+            await interaction.reply({content:"Successfully Voted", ephemeral:true});
+          }
+          else {
+            // Handle the case where the channel does not support sending messages
+            console.error('The channel type does not support sending messages.');
+          }
+
+        }
+        else if(interaction.customId === 'twoButton'){
+          
+          const embed = new EmbedBuilder()
+            .setTitle(`${interaction.user.username} voted for 2`)
+            .setColor('Blue')
+            .setTimestamp()
+            .setFooter({text:`Voted for option 2`})
+
+
+          if (!interaction.channel) {
+            return await interaction.reply({
+              content: 'This interaction cannot be processed in DMs.',
+              ephemeral: true,
+            });
+          }
+
+          const channel = interaction.channel;
+
+          if (channel && (channel instanceof TextChannel || channel instanceof DMChannel || channel instanceof NewsChannel)) {
+            const reaction = await channel.send({embeds:[embed]});
+            reaction.react('👍')
+            reaction.react('👎')
+            await interaction.reply({content:"Successfully Voted", ephemeral:true});
+          }
+          else {
+            // Handle the case where the channel does not support sending messages
+            console.error('The channel type does not support sending messages.');
+          }
+
+        }
       });
   
       this.client.on(Events.ClientReady, () => {
@@ -104,7 +171,7 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
 
           let random = Math.floor(Math.random() * status.length);
           this.client.user?.setActivity(status[random]);
-        }, 10000);
+        }, 100000);
       });
   
       this.client.on(Events.Error, (err: Error) => {
