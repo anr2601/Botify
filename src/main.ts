@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as DiscordRestClient, Routes, ActivityType, EmbedBuilder, TextChannel, DMChannel, NewsChannel } from "discord.js";
   import dotenv from "dotenv";
   const mongoose = require('mongoose');
-  import { InteractionHandler } from "./handler";
+  import { InteractionHandler } from "./handler/Slash";
+  import { AutoVoiceHandler } from "./handler/AutoVoiceHandler";
   dotenv.config();
 
   
@@ -12,6 +13,7 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
     private client: Client;
     private discordRestClient: DiscordRestClient;
     private interactionHandler: InteractionHandler;
+    private autoVoiceHandler: AutoVoiceHandler;
   
     constructor() {
       this.client = new Client({
@@ -42,6 +44,7 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
         DISCORD_ACCESS_TOKEN
       );
       this.interactionHandler = new InteractionHandler();
+      this.autoVoiceHandler = new AutoVoiceHandler(this.client);
     }
 
     
@@ -79,6 +82,11 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
           interaction as ChatInputCommandInteraction
         );
       });
+
+      
+    this.client.on(Events.VoiceStateUpdate, (oldState, newState) => {
+      this.autoVoiceHandler.handleVoiceStateUpdate(oldState, newState); // Add event for voice state updates
+    });
 
       this.client.on(Events.InteractionCreate, async interaction => {
 
