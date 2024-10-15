@@ -1,19 +1,26 @@
-import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as DiscordRestClient, Routes, ActivityType, EmbedBuilder, TextChannel, DMChannel, NewsChannel } from "discord.js";
+import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as DiscordRestClient, Routes, ActivityType, EmbedBuilder, ChannelType, TextChannel, DMChannel, NewsChannel, VoiceState } from "discord.js";
   import dotenv from "dotenv";
   const mongoose = require('mongoose');
   import { InteractionHandler } from "./handler/Slash";
   import { AutoVoiceHandler } from "./handler/AutoVoiceHandler";
+  import { CountingGame } from "./command/counting";
   dotenv.config();
 
   
+  //ENV VARS
   const DISCORD_ACCESS_TOKEN = process.env.DISCORD_TOKEN || "";
   const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || "";
+
+
+  //BOTIFY CLASS
   
   class BotifyApplication {
+
     private client: Client;
     private discordRestClient: DiscordRestClient;
     private interactionHandler: InteractionHandler;
     private autoVoiceHandler: AutoVoiceHandler;
+    private countinggame: CountingGame;
   
     constructor() {
       this.client = new Client({
@@ -22,6 +29,7 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
           GatewayIntentBits.GuildMembers,
           GatewayIntentBits.GuildMessages,
           GatewayIntentBits.MessageContent,
+          GatewayIntentBits.GuildVoiceStates,
         ],
         shards: "auto",
         failIfNotExists: false,
@@ -45,6 +53,7 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
       );
       this.interactionHandler = new InteractionHandler();
       this.autoVoiceHandler = new AutoVoiceHandler(this.client);
+      this.countinggame = new CountingGame("111111111#Counting Channel");
     }
 
     
@@ -84,9 +93,9 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
       });
 
       
-    this.client.on(Events.VoiceStateUpdate, (oldState, newState) => {
-      this.autoVoiceHandler.handleVoiceStateUpdate(oldState, newState); // Add event for voice state updates
-    });
+      this.client.on(Events.VoiceStateUpdate, (oldState, newState) => {
+        this.autoVoiceHandler.handleVoiceStateUpdate(oldState, newState); // Add event for voice state updates
+      });
 
       this.client.on(Events.InteractionCreate, async interaction => {
 

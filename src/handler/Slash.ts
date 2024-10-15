@@ -7,6 +7,7 @@ import { MuteCommand } from "../command/moderation/mute";
 import { TimeoutCommand } from '../command/moderation/timeout';
 import { DailyCommand } from "../command/economy/daily";
 import { WYRCommand } from "../command/game";
+import { CountingGame } from "../command/counting" 
 
 export class InteractionHandler {
   private commands: Command[];
@@ -19,7 +20,7 @@ export class InteractionHandler {
         new MuteCommand(),
         new TimeoutCommand(),
         new DailyCommand(),
-        new WYRCommand()
+        new WYRCommand(),
       ];
     }
   
