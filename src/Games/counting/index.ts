@@ -6,7 +6,7 @@ export class CountingGame {
   private countingChannelId: string;
 
   constructor(channelId: string) {
-    this.counter = -1;
+    this.counter = 0;
     this.magicalNumber = 5500; // Starting magical number
     this.countingChannelId = channelId;
   }
@@ -59,12 +59,16 @@ export class CountingGame {
   private async sendErrorMessage(message: Message, errorMessage: string): Promise<void> {
     const channel = message.channel as TextChannel;
     const errorMsg = await channel.send(`<@${message.author.id}> ${errorMessage}`);
-    setTimeout(() => errorMsg.delete(), 3000);
+    // setTimeout(() => errorMsg.delete(), 3000);
     await message.delete();
   }
 
   private incrementMagicalNumber(): void {
     const increaseBy = Math.floor(Math.random() * 101) + 200;
     this.magicalNumber += increaseBy;
+  }
+
+  public resetCounter(): void {
+    this.counter = -1; // Reset the counter to its initial value
   }
 }

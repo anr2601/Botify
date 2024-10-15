@@ -3,16 +3,17 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
   const mongoose = require('mongoose');
   import { InteractionHandler } from "./handler/Slash";
   import { AutoVoiceHandler } from "./handler/AutoVoiceHandler";
-  import { CountingGame } from "./command/counting";
+  import { CountingGame } from "./Games/counting";
   dotenv.config();
 
   
   //ENV VARS
   const DISCORD_ACCESS_TOKEN = process.env.DISCORD_TOKEN || "";
   const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || "";
+  const COUNTINGGAME_ID = process.env.COUNTING_GAME_ID || "";
 
 
-  //BOTIFY CLASS
+  //---------------------------------------------------BOTIFY CLASS----------------------------------------------------------
   
   class BotifyApplication {
 
@@ -53,7 +54,7 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
       );
       this.interactionHandler = new InteractionHandler();
       this.autoVoiceHandler = new AutoVoiceHandler(this.client);
-      this.countinggame = new CountingGame("111111111#Counting Channel");
+      this.countinggame = new CountingGame(COUNTINGGAME_ID);
     }
 
     
@@ -83,6 +84,10 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
           console.error("Error registering application (/) commands", err);
         });
     }
+
+
+
+    //---------------------------------------------------------EVENT HANDLERS----------------------------------------------------------------
   
     addClientEventHandlers() {
 
@@ -92,10 +97,15 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
         );
       });
 
-      
+
+      // AUTO VOICE CHANNEL EVENT
       this.client.on(Events.VoiceStateUpdate, (oldState, newState) => {
         this.autoVoiceHandler.handleVoiceStateUpdate(oldState, newState); // Add event for voice state updates
       });
+
+
+
+      // WOULD YOU RATHER GAME EVENT
 
       this.client.on(Events.InteractionCreate, async interaction => {
 
@@ -161,6 +171,31 @@ import { ChatInputCommandInteraction, Client, Events, GatewayIntentBits, REST as
 
         }
       });
+
+      // MESSAGE EVENT FOR COUNTING GAME
+      this.client.on(Events.MessageCreate, async (message) => {
+        // Ignore messages from bots
+        if (message.author.bot) return;
+
+        // Handle counting game messages
+        if (message.channel.id === COUNTINGGAME_ID) {
+          await this.countinggame.handleMessage(message);
+        }
+      });
+
+      // COUNTING GAME
+
+      this.client.on(Events.InteractionCreate, async interaction => {
+        if (interaction.isCommand()) {
+          if (interaction.commandName === 'resetcounter') {
+            this.countinggame.resetCounter(); // Reset the counter
+            await interaction.reply({ content: 'The counting game counter has been reset!', ephemeral: true });
+          }
+        }
+      });
+
+
+      // BOT PERSONAL ENTERTAINMENT EVENTS
   
       this.client.on(Events.ClientReady, () => {
         console.log("Botify client logged in");

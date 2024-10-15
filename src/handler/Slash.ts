@@ -7,7 +7,12 @@ import { MuteCommand } from "../command/moderation/mute";
 import { TimeoutCommand } from '../command/moderation/timeout';
 import { DailyCommand } from "../command/economy/daily";
 import { WYRCommand } from "../command/game";
-import { CountingGame } from "../command/counting" 
+import { CountingGameCommand } from "../command/cggame";
+import dotenv from "dotenv"
+
+dotenv.config()
+const COUNTINGGAME_ID = process.env.COUNTING_GAME_ID || "";
+
 
 export class InteractionHandler {
   private commands: Command[];
@@ -21,6 +26,7 @@ export class InteractionHandler {
         new TimeoutCommand(),
         new DailyCommand(),
         new WYRCommand(),
+        new CountingGameCommand(COUNTINGGAME_ID), 
       ];
     }
   
